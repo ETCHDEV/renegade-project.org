@@ -60,19 +60,19 @@ $ cat UsbConfigDxe.efi.hex | grep "2a 02 00 34"
 Now, armed with this information, let's open up all of these files in Ghidra, so that we can methodically apply the patch.
 
 Create a new project in Ghidra as follows:
-![](/img/dxe_patching/1.png)
-![](/img/dxe_patching/2.png)
-![](/img/dxe_patching/3.png)
-![](/img/dxe_patching/4.png)
+![](./img/dxe_patching/1.png)
+![](./img/dxe_patching/2.png)
+![](./img/dxe_patching/3.png)
+![](./img/dxe_patching/4.png)
 
 Now, batch-import the differing versions of `UsbConfigDxe.efi` we will be working with:
-![](/img/dxe_patching/5.png)
-![](/img/dxe_patching/6.png)
-![](/img/dxe_patching/7.png)
-![No need to change anything here.](/img/dxe_patching/8.png)
+![](./img/dxe_patching/5.png)
+![](./img/dxe_patching/6.png)
+![](./img/dxe_patching/7.png)
+![No need to change anything here.](./img/dxe_patching/8.png)
 
-![](/img/dxe_patching/9.png)
-![](/img/dxe_patching/10.png)
+![](./img/dxe_patching/9.png)
+![](./img/dxe_patching/10.png)
 
 Now, double-click `UsbConfigDxe.efi` (the unpatched version from your device). Ghidra will open up the CodeBrowser, and it will ask you whether you want to analyze the file.
 
@@ -80,42 +80,42 @@ Now, double-click `UsbConfigDxe.efi` (the unpatched version from your device). G
 Analysis means that Ghidra will try to deduct as much from the file as it can get away with - it will even give you some nice almost-C code.
 This could be helpful, so select Yes. You will then get this screen:
 
-![](/img/dxe_patching/12.png)
+![](./img/dxe_patching/12.png)
 
 Here, just click the Analyze button - the defaults will be more than enough.
 
 Then, Ghidra will crunch away, trying to demystify those hex bytes. Give it a few seconds and it'll be done.	
 
-![](/img/dxe_patching/13.png)
+![](./img/dxe_patching/13.png)
 
 As soon as the progress bar goes away, you will be ready to edit.
 
-![](/img/dxe_patching/14.png)
+![](./img/dxe_patching/14.png)
 
 Before we get going though, one thing to keep in mind: Ghidra's offsets are **virtual addresses**, reflecting the offsets of bytes when the program is loaded to memory, not file addresses, which are the offsets of the bytes in the file.
 
 Therefore, we have to pay attention to the **base address**:
 
-![](/img/dxe_patching/15.png)
+![](./img/dxe_patching/15.png)
 
 In this case (and in most cases, I believe), this address is `00010000`. Therefore, every offset we have found out before should be shifted by that amount - so an offset of `00005350` in-file would become `00015350`.
 
 You can scroll freely until you find the address you want, but there's a quicker way: press the `G` key on the keyboard to bring up this dialog:
 
-![](/img/dxe_patching/16.png)
+![](./img/dxe_patching/16.png)
 
 In here, type the address you want to go to - we will type the address of the original byte sequence (from the last step in the terminal, which was `000048f0` - but when offset by the base address, this would be `000148f0`):
 
-![](/img/dxe_patching/17.png)
+![](./img/dxe_patching/17.png)
 
 Ghidra will take us to the offset:
 
-![](/img/dxe_patching/18.png)
+![](./img/dxe_patching/18.png)
 
 However, you may notice that the offset we were taken to isn't the same exact offset we have read from the hex file - this is because the offset at the beginning of the line in the hex dump is the address of the **first** offset in that line.
 But since they're on the same line, they're in the same proximity - look at the couple or so of lines below that ... and, sure thing, there it is:
 
-![](/img/dxe_patching/18-annotated.png)
+![](./img/dxe_patching/18-annotated.png)
 
 There it is!
 
@@ -124,26 +124,26 @@ Before we jump to editing, we need to know *what* exactly to put in there by see
 Open up any of the two in Ghidra side-by-side - I'll be going with the Mi Mix 3 pair.
 As usual, it will ask you to analyze the file - let it do so.
 
-![](/img/dxe_patching/21.png)
+![](./img/dxe_patching/21.png)
 
 Go to the offset **from the diff between the two files** - in this case, the offset will be `000048f0`, or `000148f0` adjusted for the base address,
 
 We can see that in the original, unpatched file, the original byte sequence `2a 02 00 34` translates into the assembly instruction `cbz w10,0x00014938`, while the patched byte sequence `` translates into `b 0x00014938`:
 
-![](/img/dxe_patching/22.png)
-![](/img/dxe_patching/23.png)
+![](./img/dxe_patching/22.png)
+![](./img/dxe_patching/23.png)
 
 Note the difference, then close the two Mix 3 windows.
 
 Let's edit the byte sequence in the **original** file **from your device** (i.e. `UsbConfigDxe.efi`)  by pressing `Ctrl` + `Shift` + `G`, which should put us into edit mode.
 
-![](/img/dxe_patching/20.png)
+![](./img/dxe_patching/20.png)
 
 <details>
 <summary>Note</summary>
 
 It will show this dialog the first time you invoke edit mode, as it builds the assembler for the CPU architecture of our phone:
-![](/img/dxe_patching/19.png)
+![](./img/dxe_patching/19.png)
 
 But this will only happen once per file.
 
@@ -151,27 +151,27 @@ But this will only happen once per file.
 
 Edit the sequence from this:
 
-![](/img/dxe_patching/24.png)
+![](./img/dxe_patching/24.png)
 
 To this:
 
-![](/img/dxe_patching/25.png)
+![](./img/dxe_patching/25.png)
 
 Then, repeat this for the other occurrence of the byte sequence:
 
-![](/img/dxe_patching/26.png)
+![](./img/dxe_patching/26.png)
 
-![](/img/dxe_patching/27.png)
+![](./img/dxe_patching/27.png)
 
 With this, you have successfully patched `UsbConfigDxe.efi` - save and export it as a PE executable. Make sure you append `patched` to the filename to avoid confusion with unpatched files, and **doubly make sure that "Selection" is unchecked!**
 
-![](/img/dxe_patching/28.png)
-![](/img/dxe_patching/29.png)
-![](/img/dxe_patching/30.png)
+![](./img/dxe_patching/28.png)
+![](./img/dxe_patching/29.png)
+![](./img/dxe_patching/30.png)
 
 Ghidra will print out a report indicating that the export without a problem.
 
-![](/img/dxe_patching/31.png)
+![](./img/dxe_patching/31.png)
 
 **Now, let's repeat the steps above for ButtonsDxe.efi:**
 
@@ -227,8 +227,8 @@ We'll compare the two files in Ghidra.
 
 First, open up the matched-unmatched pairs from the Surface Duo in Ghidra. Find each offset from the diff, then take note of the assembly code at that offset and neighboring offsets:
 
-![](/img/dxe_patching/32.png)
-![](/img/dxe_patching/33.png)
+![](./img/dxe_patching/32.png)
+![](./img/dxe_patching/33.png)
 
 As we can see, `mov w17,#0x102` has become `mov w17,#0xd`, and `strh w17,[sp, #local_68]` has become `strh w17,[sp, #local_68+0x2]` :
 
@@ -246,7 +246,7 @@ Patched:
 
 Now, open our file and go to the "suspect" offset:
 
-![](/img/dxe_patching/34.png)
+![](./img/dxe_patching/34.png)
 
 ```
 Our file:
@@ -258,11 +258,11 @@ Our file:
 Surprisingly, those instructions in assembly are identical except for `w17` being `w16` here. So, we will edit our assembly instructions to match the ones from the Surface Duo file, but keeping the `w17 -> w16` part as is.
 Editing the first line is straightforward enough. But attempting to edit the second line:
 
-![](/img/dxe_patching/35.png)
+![](./img/dxe_patching/35.png)
 
 results in this:
 
-![](/img/dxe_patching/36.png)
+![](./img/dxe_patching/36.png)
 
 **Where did this `#0x8` come from?** And what's `#local_68` ?
 
@@ -274,26 +274,26 @@ So, to determine what we should edit this line with, we should refer to the unpa
 
 In the unpatched Surface Duo binary, invoking edit mode on the second line results in this:
 
-![](/img/dxe_patching/37.png)
+![](./img/dxe_patching/37.png)
 
 `strh       w17,[sp, #0x18]`
 
 ... while invoking edit mode on the second line in the patched Surface Duo binary (reminder: `strh        w17,[sp, #local_68+0x2]`) results in this:
 
-![](/img/dxe_patching/38.png)
+![](./img/dxe_patching/38.png)
 `strh        w17,[sp, #0x1a]`
 
 And given that our original line had `0xa`, that (`0x18 + 0x2 = 0x1a` ... `old value + 0x2 = new`) means that our patch should become like this:
 
-![](/img/dxe_patching/39.png)
+![](./img/dxe_patching/39.png)
 ```
 strh        w16,[sp, #0xa]
 ```
 
 Now, save and export the binary in PE format, like we have done before:
 
-![](/img/dxe_patching/40.png)
-![](/img/dxe_patching/41.png) - filename!
-![](/img/dxe_patching/42.png)
+![](./img/dxe_patching/40.png)
+![](./img/dxe_patching/41.png) - filename!
+![](./img/dxe_patching/42.png)
 
-With this finally done, let's move to [the final step in this task](en/sm8150pkg/tutorial/6_Building_with_patched_firmware_binaries.md).
+With this finally done, let's move to [the final step in this task](./6_Building_with_patched_firmware_binaries.md).
