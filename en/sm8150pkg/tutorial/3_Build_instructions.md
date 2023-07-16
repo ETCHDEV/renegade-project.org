@@ -32,19 +32,19 @@ Let's do this by opening the file in question:
 
 This will open up `SurfaceDuo.dsc` in the GNU Nano text editor, as follows:
 
-![The GNU Nano text editor showing the file SurfaceDuo.dsc](/img/ssh/1.png)
+![The GNU Nano text editor showing the file SurfaceDuo.dsc](./img/ssh/1.png)
 
 Find the `Build ID Tables` section of that file:
 
-![A crop of the Nano editor view, showing the section of concern](/img/ssh/2.png)
+![A crop of the Nano editor view, showing the section of concern](./img/ssh/2.png)
 
 Add another row with your device's model and codename to the tail end of the table. In this instance, there are three devices, so my device (OnePlus 7 Pro / `guacamole` ) will be the 4th device on that list:
 
-![The same section, after adding the new device block](/img/ssh/3.png)
+![The same section, after adding the new device block](./img/ssh/3.png)
 
 Then, set `BUILD_DEVICE_ID` to match the number for your device's new entry:
 
-![Changing BUILD_DEVICE_ID to match the new device entry's number](/img/ssh/4.png)
+![Changing BUILD_DEVICE_ID to match the new device entry's number](./img/ssh/4.png)
 
 Now, you can save that file by pressing `Ctrl` + `S` on your keyboard. Don't close `nano` just yet, since we have more to edit!
 
@@ -67,11 +67,11 @@ Simply copy this template after the last device, increment the `BUILD_DEVICE_ID`
 
 Before:
 
-![The section before adding in the new device screen resolution block](/img/ssh/5.png)
+![The section before adding in the new device screen resolution block](./img/ssh/5.png)
 
 After:
 
-![That same section after adding the block of concern](/img/ssh/6.png)
+![That same section after adding the block of concern](./img/ssh/6.png)
 
 ## Step 3: Copy your device's bootloader firmware binaries and Device Tree Blob:
 
@@ -170,7 +170,7 @@ Open `Platforms/SurfaceDuoPkg/SurfaceDuo.fdf` as follows:
 
 Then, find this block:
 
-![A part of SurfaceDuo.fdf that tells the build system where to locate the files that describe the paths for the firmware binaries](/img/ssh/7.png)
+![A part of SurfaceDuo.fdf that tells the build system where to locate the files that describe the paths for the firmware binaries](./img/ssh/7.png)
 
 Change this template accordingly, then copy it to the end, after the last device entry:
 
@@ -180,7 +180,7 @@ Change this template accordingly, then copy it to the end, after the last device
     !include SurfaceDuoPkg/Include/DXE4.inc
   !endif
 ```
-![The same excerpt above, after being edited](/img/ssh/8.png)
+![The same excerpt above, after being edited](./img/ssh/8.png)
 
 **One last thing:** we will tell the build process to use the generic ACPI tables, instead of Surface Duo-specific ones:
 
@@ -192,11 +192,11 @@ A quick way to do this is by highlighting the block with `Shift` + arrow keys, t
 
 Before:
 
-![ACPI.inc before commenting out the first block](/img/ssh/9_before.png)
+![ACPI.inc before commenting out the first block](./img/ssh/9_before.png)
 
 After:
 
-![ACPI.inc after commenting out the first block](/img/ssh/10_after.png)
+![ACPI.inc after commenting out the first block](./img/ssh/10_after.png)
 
 Save and exit.
 
